@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body data-page="inventory">
+  <%- include('partials/header') %>
+
+  <section class="container inventory-page">
+    <h1>Mazda Inventory</h1>
+    <p class="results-count"><%= totalResults %> vehicles found</p>
+
+    <div class="inventory-layout">
+      <aside class="filters">
+        <form method="get" action="/inventory">
+          <label>Model
+            <select name="model">
+              <option value="">Any</option>
+              <% models.forEach(function(m) { %>
+                <option value="<%= m %>" <%= query.model === m ? 'selected' : '' %>><%= m %></option>
+              <% }) %>
+            </select>
+          </label>
+
+          <label>Condition
+            <select name="condition">
+              <option value="">Any</option>
+              <option value="new" <%= query.condition === 'new' ? 'selected' : '' %>>New</option>
+              <option value="used" <%= query.condition === 'used' ? 'selected' : '' %>>Used</option>
+            </select>
+          </label>
+
+          <label>Min Price
+            <input type="number" name="priceMin" value="<%= query.priceMin || '' %>" placeholder="$0">
+          </label>
+
+          <label>Max Price
+            <input type="number" name="priceMax" value="<%= query.priceMax || '' %>" placeholder="$100,000">
+          </label>
+
+          <button type="submit">Apply Filters</button>
+          <a class="clear-link" href="/inventory">Clear Filters</a>
+        </form>
+      </aside>
+
+      <div class="results">
+        <div class="vehicle-grid">
+          <% vehicles.forEach(function(v) { %>
+            <%- include('partials/vehicle-card', { v }) %>
+          <% }) %>
+        </div>
+
+        <% if (vehicles.length === 0) { %>
+          <p class="empty-state">No vehicles match your search criteria.</p>
+        <% } %>
+
+        <nav class="pagination">
+          <% if (currentPage > 1) { %>
+            <a href="?<%= new URLSearchParams(Object.assign({}, query, { page: currentPage - 1 })).toString() %>">&larr; Prev</a>
+          <% } %>
+          <span>Page <%= currentPage %> of <%= totalPages %></span>
+          <% if (currentPage < totalPages) { %>
+            <a href="?<%= new URLSearchParams(Object.assign({}, query, { page: currentPage + 1 })).toString() %>">Next &rarr;</a>
+          <% } %>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

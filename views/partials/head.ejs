@@ -1,0 +1,15 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= title %></title>
+<meta name="description" content="<%= description %>">
+<link rel="canonical" href="<%= canonical %>">
+
+<meta property="og:title" content="<%= title %>">
+<meta property="og:description" content="<%= description %>">
+<meta property="og:type" content="website">
+<meta property="og:url" content="<%= canonical %>">
+<% if (typeof vehicle !== 'undefined' && vehicle.images && vehicle.images[0]) { %>
+<meta property="og:image" content="<%= vehicle.images[0] %>">
+<% } %>
+
+<link rel="stylesheet" href="/css/style.css">

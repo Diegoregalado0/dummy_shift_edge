@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body data-page="vehicle" data-vin="<%= vehicle.vin %>">
+  <%- include('partials/header') %>
+
+  <section class="container vehicle-page">
+    <p class="breadcrumbs">
+      <a href="/">Home</a> &rsaquo;
+      <a href="/inventory">Inventory</a> &rsaquo;
+      <a href="/inventory?model=<%= encodeURIComponent(vehicle.model) %>">Mazda <%= vehicle.model %></a> &rsaquo;
+      <span><%= vehicle.year %> <%= vehicle.model %></span>
+    </p>
+
+    <div class="vehicle-detail-layout">
+      <div class="gallery">
+        <img class="gallery-main" src="<%= vehicle.images[0] %>" alt="<%= vehicle.year %> Mazda <%= vehicle.model %>" id="gallery-main">
+        <div class="gallery-thumbs">
+          <% vehicle.images.forEach(function(img, i) { %>
+            <img src="<%= img %>" alt="Mazda <%= vehicle.model %> photo <%= i + 1 %>" class="thumb" onclick="document.getElementById('gallery-main').src = this.src">
+          <% }) %>
+        </div>
+      </div>
+
+      <div class="vehicle-info">
+        <span class="badge badge-<%= vehicle.status %>"><%= vehicle.status %></span>
+        <h1><%= vehicle.year %> Mazda <%= vehicle.model %> <%= vehicle.trim %></h1>
+        <p class="vin-display">VIN: <strong><%= vehicle.vin %></strong></p>
+        <p class="price-display">$<%= vehicle.price.toLocaleString() %></p>
+
+        <table class="specs-table">
+          <tr><th>Body Type</th><td><%= vehicle.bodyType %></td></tr>
+          <tr><th>Stock #</th><td><%= vehicle.stockNumber %></td></tr>
+          <tr><th>Mileage</th><td><%= vehicle.mileage.toLocaleString() %> mi</td></tr>
+          <tr><th>Exterior Color</th><td><%= vehicle.exteriorColor %></td></tr>
+          <tr><th>Interior Color</th><td><%= vehicle.interiorColor %></td></tr>
+          <tr><th>Engine</th><td><%= vehicle.engine %></td></tr>
+          <tr><th>Transmission</th><td><%= vehicle.transmission %></td></tr>
+          <tr><th>Drivetrain</th><td><%= vehicle.drivetrain %></td></tr>
+          <tr><th>Dealer</th><td><%= vehicle.dealerId %></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <% if (related.length) { %>
+    <section class="related">
+      <h2>Similar Mazda <%= vehicle.model %> Vehicles</h2>
+      <div class="vehicle-grid">
+        <% related.forEach(function(v) { %>
+          <%- include('partials/vehicle-card', { v }) %>
+        <% }) %>
+      </div>
+    </section>
+    <% } %>
+  </section>
+
+  <%- include('partials/footer') %>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Vehicle",
+    "vehicleIdentificationNumber": "<%= vehicle.vin %>",
+    "manufacturer": "Mazda",
+    "model": "<%= vehicle.model %>",
+    "vehicleModelDate": "<%= vehicle.year %>",
+    "mileageFromOdometer": "<%= vehicle.mileage %>",
+    "offers": {
+      "@type": "Offer",
+      "price": "<%= vehicle.price %>",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+</body>
+</html>

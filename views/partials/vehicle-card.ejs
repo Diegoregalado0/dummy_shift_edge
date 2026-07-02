@@ -1,0 +1,13 @@
+<a class="vehicle-card" href="/inventory/<%= v.slug %>">
+  <div class="vehicle-card-img">
+    <img src="<%= v.images[0] %>" alt="<%= v.year %> Mazda <%= v.model %>" loading="lazy">
+    <span class="badge badge-<%= v.status %>"><%= v.status %></span>
+  </div>
+  <div class="vehicle-card-body">
+    <h3><%= v.year %> Mazda <%= v.model %></h3>
+    <p class="trim"><%= v.trim %> &middot; <%= v.bodyType %></p>
+    <p class="price">$<%= v.price.toLocaleString() %></p>
+    <p class="meta"><%= v.mileage.toLocaleString() %> mi &middot; <%= v.exteriorColor %></p>
+    <p class="meta small">Stock #<%= v.stockNumber %> &middot; VIN <%= v.vin %></p>
+  </div>
+</a>
