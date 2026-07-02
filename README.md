@@ -1,14 +1,4 @@
-# Velocity Mazda — Mock Dealership Site
-
-A high-fidelity mock Mazda dealership website used to test an edge reverse
-proxy (Cloudflare Worker). Server-side rendered with Express + EJS, backed by
-an in-memory JSON inventory. No database, no auth, no SPA framework.
-
-Vehicle detail URLs follow the real-world DealerOn/Mazda-dealer pattern, e.g.:
-
-```
-/inventory/new-2026-mazda-cx-5-2-5-s-awd-awd-suv-jm3kmaha1t0167432
-```
+#Mock Dealership Site
 
 ## Stack
 
@@ -16,20 +6,6 @@ Vehicle detail URLs follow the real-world DealerOn/Mazda-dealer pattern, e.g.:
 - EJS server-side templates
 - In-memory JSON dataset (`data/inventory.json`, loaded once at startup)
 - Docker / Cloud Run ready (port 8080, stateless)
-
-## Running locally
-
-```bash
-npm install
-npm start          # http://localhost:8080
-```
-
-To regenerate the mock inventory (60 Mazda vehicles across CX-5, CX-50,
-CX-70, CX-90, CX-30, Mazda3, and MX-5 Miata):
-
-```bash
-npm run generate-inventory
-```
 
 ## Routes
 
@@ -117,22 +93,6 @@ The app is stateless (all state is in-memory and rebuilt from
 with no shared state concerns. The in-memory ping log is per-instance and
 for local debugging only — don't rely on it across instances.
 
-## Notes
-
-- VIN is the primary key for vehicle lookups; VINs are 17 characters,
-  format-realistic (Mazda-style JM1/JM3 WMI prefix) but not decodable.
-- Each vehicle's `slug` field is precomputed at generation time and used
-  for the public `/inventory/:slug` URL; `/api/vehicle/:vin` still looks
-  up by VIN for API consumers.
-- Inventory is static for the life of the process — no writes, no DB.
-- No authentication, no analytics dashboard, no SPA framework, by design.
-
-## Image attribution
-
-Vehicle photos are real Mazda photos pulled from Wikimedia Commons (freely
-licensed for reuse). Each vehicle gets its own distinct 5-photo set, drawn
-from a per-model pool in `public/images/vehicles/<model>/pool/`:
-
 | Model | Pool size | Vehicles in inventory |
 |---|---|---|
 | CX-5 | 25 | 10 |
@@ -142,21 +102,3 @@ from a per-model pool in `public/images/vehicles/<model>/pool/`:
 | CX-90 | 25 | 7 |
 | Mazda3 | 25 | 11 |
 | MX-5 Miata | 25 | 9 |
-
-Every vehicle currently has a fully unique image set (verified: 60/60
-distinct across the inventory), since each model's pool comfortably
-exceeds its vehicle count. If the generator (`npm run generate-inventory`)
-is later run with more vehicles per model than a pool holds, sets start
-repeating (sliding window with wraparound) rather than failing.
-
-Regenerating the pool:
-1. `node data/buildImagePool.js` — filters raw Commons category listings
-   (fetched via the MediaWiki API, cached in `/tmp/commons_*.json`) down
-   to plausible clean exterior shots, capped at 25/model, and writes
-   `data/image-sources-pool.json`.
-2. `node data/downloadImages.js` — downloads each listed file via Commons'
-   `Special:FilePath` endpoint (throttled to be polite to Wikimedia's
-   servers) into `public/images/vehicles/<model>/pool/`.
-
-Check each file's Commons page for its specific license/attribution terms
-before any use beyond this internal test fixture.
