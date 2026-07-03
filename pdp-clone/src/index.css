@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+/* "Mazda Type" is a proprietary Mazda corporate typeface used on the live
+   site and is not publicly licensable; Roboto Slab is substituted as the
+   closest widely-available match for the bold geometric slab-serif look. */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+@theme {
+  --font-serif: 'Roboto Slab', ui-serif, Georgia, serif;
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

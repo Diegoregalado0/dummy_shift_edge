@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include('partials/head') %>
+  <link rel="stylesheet" href="/css/vehicle-print.css">
+</head>
+<body data-page="vehicle-print" data-vin="<%= vehicle.vin %>">
+  <div class="vpp">
+    <div class="vpp-toolbar">
+      <h1><strong><%= vehicle.status === 'new' ? 'New' : (vehicle.status === 'used' ? 'Used' : 'Sold') %></strong> <%= vehicle.year %> Mazda <%= vehicle.model %> <%= vehicle.trim %></h1>
+      <button type="button" id="vpp-print-btn">Print</button>
+    </div>
+
+    <h1 class="vpp-print-title"><%= vehicle.status === 'new' ? 'New' : (vehicle.status === 'used' ? 'Used' : 'Sold') %> <%= vehicle.year %> Mazda <%= vehicle.model %> <%= vehicle.trim %></h1>
+
+    <ul class="vpp-meta">
+      <li>VIN: <%= vehicle.vin %></li>
+      <li>Stock: <%= vehicle.stockNumber %></li>
+    </ul>
+
+    <dl class="vpp-basic-info">
+      <div><dt>Exterior:</dt><dd><%= vehicle.exteriorColor %></dd></div>
+      <div><dt>Drivetrain:</dt><dd><%= vehicle.drivetrain %></dd></div>
+      <div><dt>Interior:</dt><dd><%= vehicle.interiorColor %></dd></div>
+      <div><dt>Transmission:</dt><dd><%= vehicle.transmission %></dd></div>
+      <div><dt>Engine:</dt><dd><%= vehicle.engine %></dd></div>
+      <div><dt>Mileage:</dt><dd><%= vehicle.mileage.toLocaleString() %> mi</dd></div>
+    </dl>
+
+    <% if (allDetailItems.length) { %>
+    <h2>Vehicle Details:</h2>
+    <ul class="vpp-details-list">
+      <% allDetailItems.forEach(function(item) { %>
+        <li><%= item %></li>
+      <% }) %>
+    </ul>
+    <% } %>
+
+    <p class="vpp-price"><%= vehicle.status === 'used' ? 'Price' : 'MSRP' %> $<%= vehicle.price.toLocaleString() %></p>
+  </div>
+
+  <script src="/js/vehicle-print.js"></script>
+</body>
+</html>

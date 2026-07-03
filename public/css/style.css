@@ -159,10 +159,86 @@ a:hover { text-decoration: underline; }
 .specs-table th, .specs-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); font-size: 14px; }
 .specs-table th { color: #666; font-weight: 600; width: 40%; }
 
+/* Vehicle detail: action buttons */
+.action-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-primary, .btn-secondary {
+  padding: 12px 20px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { opacity: 0.9; }
+.btn-secondary { background: var(--gray-bg); color: var(--navy); border: 1px solid var(--border); }
+.btn-secondary:hover { background: #eaecef; }
+
 .related { margin: 50px 0; }
 
 /* Misc pages */
 .error-page { padding: 60px 0; text-align: center; }
+
+/* Lead-capture modals */
+body.modal-open { overflow: hidden; }
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 11, 13, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+}
+.modal-overlay[hidden] { display: none; }
+.modal-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 28px;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+.modal-card h2 { margin: 0 0 6px; font-size: 20px; }
+.modal-sub { margin: 0 0 20px; color: #666; font-size: 14px; }
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: #888;
+}
+.modal-close:hover { color: #333; }
+
+.lead-form label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+.lead-form label[hidden], .lead-form button[hidden] { display: none; }
+.lead-form input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+}
+.lead-form input.invalid { border-color: var(--accent); }
+.lead-form .field-error {
+  display: block;
+  min-height: 16px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 3px;
+}
+.lead-form button[type="submit"] { width: 100%; }
+.lead-form .form-success { color: #1c7c3f; font-weight: 600; font-size: 14px; margin: 0; }
 
 @media (max-width: 800px) {
   .inventory-layout, .vehicle-detail-layout { grid-template-columns: 1fr; }
