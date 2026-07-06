@@ -1,13 +1,25 @@
+<%
+  const driveTrainLabels = { AWD: 'All-wheel drive', FWD: 'Front-wheel drive', RWD: 'Rear-wheel drive' };
+  const cardDriveTrain = driveTrainLabels[v.drivetrain] || v.drivetrain;
+%>
 <a class="vehicle-card" href="/inventory/<%= v.slug %>">
+  <h3 class="vehicle-card-title"><%= v.year %> <%= v.model %> <%= v.trim %></h3>
+
   <div class="vehicle-card-img">
-    <img src="<%= v.images[0] %>" alt="<%= v.year %> Mazda <%= v.model %>" loading="lazy">
-    <span class="badge badge-<%= v.status %>"><%= v.status %></span>
+    <img src="<%= v.image %>" alt="<%= v.year %> Mazda <%= v.model %>" loading="lazy">
   </div>
-  <div class="vehicle-card-body">
-    <h3><%= v.year %> Mazda <%= v.model %></h3>
-    <p class="trim"><%= v.trim %> &middot; <%= v.bodyType %></p>
-    <p class="price">$<%= v.price.toLocaleString() %></p>
-    <p class="meta"><%= v.mileage.toLocaleString() %> mi &middot; <%= v.exteriorColor %></p>
-    <p class="meta small">Stock #<%= v.stockNumber %> &middot; VIN <%= v.vin %></p>
+
+  <div class="vehicle-card-price-row">
+    <p class="vehicle-card-price-label">Dealer Price</p>
+    <p class="vehicle-card-price"><span class="currency">$</span><%= v.price.toLocaleString() %></p>
   </div>
+
+  <ul class="vehicle-card-specs">
+    <li>Mileage: <%= v.mileage.toLocaleString() %></li>
+    <li>Exterior: <%= v.exteriorColor %></li>
+    <li>Interior: <%= v.interiorColor %></li>
+    <li>Transmission: <%= v.transmission %></li>
+    <li>Engine: <%= v.engine %></li>
+    <li>Drivetrain: <%= cardDriveTrain %></li>
+  </ul>
 </a>

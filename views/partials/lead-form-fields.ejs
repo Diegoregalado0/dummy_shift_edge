@@ -1,0 +1,27 @@
+<label>First Name
+  <input type="text" name="firstName" autocomplete="given-name" required>
+  <span class="field-error"></span>
+</label>
+<label>Last Name
+  <input type="text" name="lastName" autocomplete="family-name" required>
+  <span class="field-error"></span>
+</label>
+<label>Email
+  <input type="email" name="email" autocomplete="email" required>
+  <span class="field-error"></span>
+</label>
+<label>Phone Number
+  <input type="tel" name="phone" autocomplete="tel" placeholder="(555) 123-4567" required>
+  <span class="field-error"></span>
+</label>
+<% if (typeof includeDate !== 'undefined' && includeDate) { %>
+<label>Preferred Date
+  <input type="date" name="preferredDate" required>
+  <span class="field-error"></span>
+</label>
+<% } %>
+<% if (typeof includeMessage !== 'undefined' && includeMessage) { %>
+<label><%= typeof messageLabel !== 'undefined' ? messageLabel : 'Message' %>
+  <textarea name="message" rows="3"></textarea>
+</label>
+<% } %>

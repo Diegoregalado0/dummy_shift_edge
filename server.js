@@ -14,6 +14,7 @@ const INVENTORY = JSON.parse(
 const VEHICLES_BY_VIN = new Map(INVENTORY.map((v) => [v.vin, v]));
 const VEHICLES_BY_SLUG = new Map(INVENTORY.map((v) => [v.slug, v]));
 const MODELS = [...new Set(INVENTORY.map((v) => v.model))].sort();
+const MODEL_CONTENT = require('./data/modelContent');
 
 // In-memory store for /api/ping payloads (debugging only, not persisted)
 const PING_LOG = [];
@@ -130,13 +131,42 @@ app.get('/inventory/:slug', async (req, res, next) => {
   const related = INVENTORY.filter(
     (v) => v.model === vehicle.model && v.vin !== vehicle.vin && v.status !== 'sold'
   ).slice(0, 4);
+  const content = MODEL_CONTENT[vehicle.model] || { keyFeatures: [], detailCategories: [] };
 
   res.render('vehicle', {
     title: `${vehicle.year} Mazda ${vehicle.model} ${vehicle.trim} | VIN ${vehicle.vin} | ${res.locals.siteName}`,
     description: `${vehicle.year} Mazda ${vehicle.model} ${vehicle.trim} for $${vehicle.price.toLocaleString()}. ${vehicle.exteriorColor} exterior, ${vehicle.mileage.toLocaleString()} miles. Stock #${vehicle.stockNumber}.`,
     canonical: `${res.locals.baseUrl}/inventory/${vehicle.slug}`,
     vehicle,
-    related
+    related,
+    keyFeatures: content.keyFeatures,
+    detailCategories: content.detailCategories
+  });
+});
+
+// ---------------------------------------------------------------------------
+// C2. Vehicle Print View — stripped-down, opens in a new tab from the VDP
+// ---------------------------------------------------------------------------
+app.get('/inventory/:slug/print', async (req, res, next) => {
+  const vehicle = VEHICLES_BY_SLUG.get(req.params.slug.toLowerCase());
+
+  if (!vehicle) {
+    return res.status(404).render('404', {
+      title: `Vehicle Not Found | ${res.locals.siteName}`,
+      description: 'The vehicle you are looking for could not be found.',
+      canonical: `${res.locals.baseUrl}${req.originalUrl}`
+    });
+  }
+
+  const content = MODEL_CONTENT[vehicle.model] || { keyFeatures: [], detailCategories: [] };
+  const allDetailItems = content.detailCategories.flatMap((cat) => cat.items);
+
+  res.render('vehicle-print', {
+    title: `${vehicle.year} Mazda ${vehicle.model} ${vehicle.trim} | Print | ${res.locals.siteName}`,
+    description: `Printable summary for ${vehicle.year} Mazda ${vehicle.model} ${vehicle.trim}.`,
+    canonical: `${res.locals.baseUrl}/inventory/${vehicle.slug}/print`,
+    vehicle,
+    allDetailItems
   });
 });
 
