@@ -20,3 +20,8 @@
   <span class="field-error"></span>
 </label>
 <% } %>
+<% if (typeof includeMessage !== 'undefined' && includeMessage) { %>
+<label><%= typeof messageLabel !== 'undefined' ? messageLabel : 'Message' %>
+  <textarea name="message" rows="3"></textarea>
+</label>
+<% } %>
