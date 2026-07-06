@@ -2,61 +2,208 @@
 <html lang="en">
 <head>
   <%- include('partials/head') %>
+  <link rel="stylesheet" href="/css/vehicle-detail.css">
 </head>
 <body data-page="vehicle" data-vin="<%= vehicle.vin %>">
   <%- include('partials/header') %>
 
-  <section class="container vehicle-page">
-    <p class="breadcrumbs">
-      <a href="/">Home</a> &rsaquo;
-      <a href="/inventory">Inventory</a> &rsaquo;
-      <a href="/inventory?model=<%= encodeURIComponent(vehicle.model) %>">Mazda <%= vehicle.model %></a> &rsaquo;
-      <span><%= vehicle.year %> <%= vehicle.model %></span>
-    </p>
-
-    <div class="vehicle-detail-layout">
-      <div class="gallery">
-        <img class="gallery-main" src="<%= vehicle.images[0] %>" alt="<%= vehicle.year %> Mazda <%= vehicle.model %>" id="gallery-main">
-        <div class="gallery-thumbs">
-          <% vehicle.images.forEach(function(img, i) { %>
-            <img src="<%= img %>" alt="Mazda <%= vehicle.model %> photo <%= i + 1 %>" class="thumb" onclick="document.getElementById('gallery-main').src = this.src">
-          <% }) %>
+  <div class="vdp">
+    <header class="vdp-header">
+      <div class="vdp-header-inner">
+        <div>
+          <h1 class="vdp-title">
+            <strong><%= vehicle.status === 'new' ? 'New' : (vehicle.status === 'used' ? 'Used' : 'Sold') %></strong>
+            <%= vehicle.year %> Mazda <%= vehicle.model %> <%= vehicle.trim %>
+          </h1>
+          <ul class="vdp-meta">
+            <li>VIN:&nbsp;<span><%= vehicle.vin %></span></li>
+            <li>Stock:&nbsp;<span><%= vehicle.stockNumber %></span></li>
+          </ul>
+        </div>
+        <div class="vdp-header-actions">
+          <button type="button" class="vdp-icon-btn" id="vdp-save" aria-label="Save vehicle" title="Save">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7.5-4.6-10-9.3C.6 8.1 2.3 4.5 6 4c2.1-.3 4 1 6 3.3C14 5 15.9 3.7 18 4c3.7.5 5.4 4.1 4 7.7C19.5 16.4 12 21 12 21z"/></svg>
+          </button>
+          <button type="button" class="vdp-icon-btn" id="vdp-share" aria-label="Share vehicle" title="Share">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-3.9M8.6 13.5l6.8 3.9"/></svg>
+          </button>
+          <a class="vdp-icon-btn" href="/inventory/<%= vehicle.slug %>/print" target="_blank" rel="noopener noreferrer" aria-label="Print vehicle" title="Print">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          </a>
         </div>
       </div>
+    </header>
 
-      <div class="vehicle-info">
-        <span class="badge badge-<%= vehicle.status %>"><%= vehicle.status %></span>
-        <h1><%= vehicle.year %> Mazda <%= vehicle.model %> <%= vehicle.trim %></h1>
-        <p class="vin-display">VIN: <strong><%= vehicle.vin %></strong></p>
-        <p class="price-display">$<%= vehicle.price.toLocaleString() %></p>
-
-        <table class="specs-table">
-          <tr><th>Body Type</th><td><%= vehicle.bodyType %></td></tr>
-          <tr><th>Stock #</th><td><%= vehicle.stockNumber %></td></tr>
-          <tr><th>Mileage</th><td><%= vehicle.mileage.toLocaleString() %> mi</td></tr>
-          <tr><th>Exterior Color</th><td><%= vehicle.exteriorColor %></td></tr>
-          <tr><th>Interior Color</th><td><%= vehicle.interiorColor %></td></tr>
-          <tr><th>Engine</th><td><%= vehicle.engine %></td></tr>
-          <tr><th>Transmission</th><td><%= vehicle.transmission %></td></tr>
-          <tr><th>Drivetrain</th><td><%= vehicle.drivetrain %></td></tr>
-          <tr><th>Dealer</th><td><%= vehicle.dealerId %></td></tr>
-        </table>
+    <section class="vdp-main">
+      <div class="vdp-main-inner">
+        <div class="vdp-image-col">
+          <div class="vdp-image-wrap">
+            <img src="<%= vehicle.image %>" alt="<%= vehicle.year %> Mazda <%= vehicle.model %>" id="vdp-image">
+            <button type="button" class="vdp-photo-pill" id="vdp-expand-1">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-4 4-3-3-6 6"/></svg>
+              (1) Photo
+            </button>
+            <button type="button" class="vdp-expand-btn" id="vdp-expand-2" aria-label="Expand photo">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="vdp-price-col">
+          <div class="vdp-price-box">
+            <div class="vdp-price-row">
+              <span class="vdp-price-label"><%= vehicle.status === 'used' ? 'Price' : 'MSRP' %></span>
+              <span class="vdp-price-value">$<%= vehicle.price.toLocaleString() %></span>
+            </div>
+            <div class="vdp-price-divider"></div>
+            <button type="button" class="vdp-details-btn" data-open-modal="details">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              DETAILS
+            </button>
+          </div>
+          <div class="vdp-cta-group">
+            <button type="button" class="vdp-cta vdp-cta-black" data-open-modal="request-price">
+              <span>Get Today's Price</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M15 9.5c0-1.4-1.3-2.5-3-2.5s-3 1.1-3 2.5 1.3 2 3 2.5 3 1.1 3 2.5-1.3 2.5-3 2.5-3-1.1-3-2.5"/></svg>
+            </button>
+            <button type="button" class="vdp-cta vdp-cta-charcoal" data-open-modal="check-availability">
+              <span>Check Availability</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.6L12 22l-8.6-8.4A5.6 5.6 0 1112 6a5.6 5.6 0 118.6 7.6z"/></svg>
+            </button>
+            <button type="button" class="vdp-cta vdp-cta-charcoal" data-open-modal="test-drive">
+              <span>Schedule Test Drive</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2M7 7l7 5"/></svg>
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <% if (related.length) { %>
-    <section class="related">
-      <h2>Similar Mazda <%= vehicle.model %> Vehicles</h2>
-      <div class="vehicle-grid">
-        <% related.forEach(function(v) { %>
-          <%- include('partials/vehicle-card', { v }) %>
-        <% }) %>
+    <section class="vdp-basic-info">
+      <div class="vdp-section-inner">
+        <h2>Basic Info</h2>
+        <ul class="vdp-basic-info-grid">
+          <li><span class="vdp-label">Exterior:</span> <span><%= vehicle.exteriorColor %></span></li>
+          <li><span class="vdp-label">Drivetrain:</span> <span><%= vehicle.drivetrain %></span></li>
+          <li><span class="vdp-label">Interior:</span> <span><%= vehicle.interiorColor %></span></li>
+          <li><span class="vdp-label">Transmission:</span> <span><%= vehicle.transmission %></span></li>
+          <li><span class="vdp-label">Engine:</span> <span><%= vehicle.engine %></span></li>
+          <li><span class="vdp-label">Mileage:</span> <span><%= vehicle.mileage.toLocaleString() %> mi</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <% if (keyFeatures && keyFeatures.length) { %>
+    <section class="vdp-key-features">
+      <div class="vdp-section-inner">
+        <h2>Key Features</h2>
+        <ul class="vdp-key-features-grid">
+          <% keyFeatures.forEach(function(feature) { %>
+            <li>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l2.5 2.5 5.5-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span><%= feature %></span>
+            </li>
+          <% }) %>
+        </ul>
       </div>
     </section>
     <% } %>
-  </section>
+
+    <% if (detailCategories && detailCategories.length) { %>
+    <section class="vdp-accordion">
+      <div class="vdp-section-inner">
+        <h2>Vehicle Details</h2>
+        <div class="vdp-accordion-list">
+          <% detailCategories.forEach(function(cat, i) { %>
+            <div class="vdp-accordion-item">
+              <button type="button" class="vdp-accordion-toggle" aria-expanded="<%= i === 0 ? 'true' : 'false' %>">
+                <h3><%= cat.category %> <span class="vdp-accordion-count">(<%= cat.items.length %>)</span></h3>
+                <span class="vdp-accordion-arrow" aria-hidden="true">&#9662;</span>
+              </button>
+              <ul class="vdp-accordion-panel" <%= i === 0 ? '' : 'hidden' %>>
+                <% cat.items.forEach(function(item) { %>
+                  <li><%= item %></li>
+                <% }) %>
+              </ul>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </section>
+    <% } %>
+
+    <% if (related.length) { %>
+    <section class="vdp-related">
+      <div class="vdp-section-inner">
+        <h2>Similar Mazda <%= vehicle.model %> Vehicles</h2>
+        <div class="vehicle-grid">
+          <% related.forEach(function(v) { %>
+            <%- include('partials/vehicle-card', { v }) %>
+          <% }) %>
+        </div>
+      </div>
+    </section>
+    <% } %>
+  </div>
+
+  <div class="vdp-lightbox" id="vdp-lightbox" hidden>
+    <button type="button" class="vdp-lightbox-close" id="vdp-lightbox-close" aria-label="Close">&times;</button>
+    <img src="<%= vehicle.image %>" alt="<%= vehicle.year %> Mazda <%= vehicle.model %>">
+  </div>
+
+  <div class="modal-overlay" id="modal-details" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-details-title">
+      <button type="button" class="modal-close" data-close-modal aria-label="Close">&times;</button>
+      <h2 id="modal-details-title">Pricing Details</h2>
+      <div class="vdp-disclaimer">
+        <p><strong>Disclaimer:</strong></p>
+        <p>New vehicle pricing includes all offers and incentives. Tax, Title and Tags not included in vehicle prices shown and must be paid by the purchaser. While great effort is made to ensure the accuracy of the information on this site, errors do occur so please verify information with a customer service representative.</p>
+        <p>**With approved credit. Terms may vary. Monthly payments are only estimates derived from the vehicle price with a 72 month term, 4.9% interest and 20% down payment.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-request-price" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-request-price-title">
+      <button type="button" class="modal-close" data-close-modal aria-label="Close">&times;</button>
+      <h2 id="modal-request-price-title">Request Price</h2>
+      <p class="modal-sub">Get pricing details for this <%= vehicle.year %> Mazda <%= vehicle.model %>.</p>
+      <form class="lead-form" data-lead-form>
+        <%- include('partials/lead-form-fields') %>
+        <button type="submit" class="btn-primary">Submit Request</button>
+        <p class="form-success" hidden>Thanks! We'll follow up with pricing shortly.</p>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-test-drive" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-test-drive-title">
+      <button type="button" class="modal-close" data-close-modal aria-label="Close">&times;</button>
+      <h2 id="modal-test-drive-title">Schedule Test Drive</h2>
+      <p class="modal-sub">Book a test drive for this <%= vehicle.year %> Mazda <%= vehicle.model %>.</p>
+      <form class="lead-form" data-lead-form>
+        <%- include('partials/lead-form-fields', { includeDate: true }) %>
+        <button type="submit" class="btn-primary">Schedule Test Drive</button>
+        <p class="form-success" hidden>Thanks! We'll confirm your test drive time shortly.</p>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-check-availability" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-check-availability-title">
+      <button type="button" class="modal-close" data-close-modal aria-label="Close">&times;</button>
+      <h2 id="modal-check-availability-title">Check Availability</h2>
+      <p class="modal-sub">Ask us to confirm this <%= vehicle.year %> Mazda <%= vehicle.model %> is still in stock.</p>
+      <form class="lead-form" data-lead-form>
+        <%- include('partials/lead-form-fields') %>
+        <button type="submit" class="btn-primary">Check Availability</button>
+        <p class="form-success" hidden>Thanks! We'll confirm availability shortly.</p>
+      </form>
+    </div>
+  </div>
 
   <%- include('partials/footer') %>
+  <script src="/js/vehicle-modals.js"></script>
+  <script src="/js/vehicle-detail.js"></script>
 
   <script type="application/ld+json">
   {

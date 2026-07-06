@@ -58,7 +58,6 @@ const MODELS = {
   }
 };
 
-const EXTERIOR_COLORS = ['Soul Red Crystal Metallic', 'Machine Gray Metallic', 'Jet Black Mica', 'Rhodium White Premium', 'Deep Crystal Blue Mica', 'Zircon Sand Metallic', 'Platinum Quartz Metallic'];
 const INTERIOR_COLORS = ['Black Leather', 'Greige Leather', 'Black Cloth', 'Terracotta Nappa Leather'];
 const TRANSMISSIONS = ['6-Speed Automatic', '6-Speed Manual'];
 const DEALER_IDS = ['DLR-2201'];
@@ -79,38 +78,44 @@ function slugify(str) {
     .replace(/(^-|-$)/g, '');
 }
 
-// Assigns each vehicle a distinct rotating 5-image slice from its model's
-// downloaded photo pool (public/images/vehicles/<model>/pool/), wrapping
-// around with reuse once a model's real-photo supply runs out.
-const IMAGE_POOL_ROOT = path.join(__dirname, '..', 'public', 'images', 'vehicles');
-const poolSizeCache = {};
-const modelImageCounters = {};
+// Each vehicle gets exactly 1 real photo, picked from a vision-verified
+// color -> photo map (data/color-photo-map/<model-slug>.json). These maps
+// are built by having an agent view every downloaded Commons photo in a
+// model's pool and classify its actual paint color; only colors with at
+// least one real matching photo are ever assignable to that model, so the
+// photo is always accurate rather than the description being force-fit to
+// an arbitrary photo. See data/color-photo-map/README (agent-generated).
+const COLOR_PHOTO_MAP_ROOT = path.join(__dirname, 'color-photo-map');
+const colorMapCache = {};
+const modelColorCounters = {};
 
-function getPoolSize(model) {
+function getColorMap(model) {
   const slug = slugify(model);
-  if (!(slug in poolSizeCache)) {
-    const dir = path.join(IMAGE_POOL_ROOT, slug, 'pool');
+  if (!(slug in colorMapCache)) {
+    const file = path.join(COLOR_PHOTO_MAP_ROOT, `${slug}.json`);
     try {
-      poolSizeCache[slug] = fs.readdirSync(dir).filter((f) => f.endsWith('.jpg')).length;
+      colorMapCache[slug] = JSON.parse(fs.readFileSync(file, 'utf8'));
     } catch {
-      poolSizeCache[slug] = 0;
+      throw new Error(`No color-photo-map found for model "${model}" at ${file}`);
     }
   }
-  return poolSizeCache[slug];
+  return colorMapCache[slug];
 }
 
-function nextImageSet(model) {
+function availableColors(model) {
+  return Object.keys(getColorMap(model));
+}
+
+// Assigns a distinct photo within the chosen color's bucket, sliding
+// through with wraparound once that color's real-photo supply runs out.
+function nextImage(model, color) {
   const slug = slugify(model);
-  const size = getPoolSize(model);
-  if (size === 0) {
-    throw new Error(`No downloaded images found for model "${model}" in public/images/vehicles/${slug}/pool/`);
-  }
-  const idx = modelImageCounters[slug] || 0;
-  modelImageCounters[slug] = idx + 1;
-  // Stride by 1 (not 5) so every vehicle gets a distinct sliding window,
-  // maximizing the number of unique 5-photo sets before any repeat.
-  const start = idx % size;
-  return [0, 1, 2, 3, 4].map((offset) => `/images/vehicles/${slug}/pool/${((start + offset) % size) + 1}.jpg`);
+  const colorMap = getColorMap(model);
+  const photos = colorMap[color];
+  const key = `${slug}::${color}`;
+  const idx = modelColorCounters[key] || 0;
+  modelColorCounters[key] = idx + 1;
+  return photos[idx % photos.length];
 }
 
 function generateVin(index) {
@@ -146,6 +151,7 @@ function generateVehicle(index) {
 
   const vin = generateVin(index);
   const trimWithDrivetrain = drivetrain === 'AWD' && !trim.toUpperCase().includes('AWD') ? `${trim} AWD` : trim;
+  const exteriorColor = pick(availableColors(model));
 
   const vehicle = {
     vin,
@@ -158,12 +164,12 @@ function generateVehicle(index) {
     mileage: status === 'new' ? 0 : mileage,
     status,
     stockNumber: `ST${String(10000 + index)}`,
-    exteriorColor: pick(EXTERIOR_COLORS),
+    exteriorColor,
     interiorColor: pick(INTERIOR_COLORS),
     engine,
     transmission: pick(TRANSMISSIONS),
     drivetrain,
-    images: nextImageSet(model),
+    image: nextImage(model, exteriorColor),
     dealerId: pick(DEALER_IDS)
   };
   vehicle.slug = buildSlug(vehicle);
